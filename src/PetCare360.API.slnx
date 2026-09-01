@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="PetCare360.API/PetCare360.API.csproj" />
+  <Project Path="PetCare360.Application/PetCare360.Application.csproj" Id="649a3845-d28a-49e9-837a-c55b3a0a8973" />
+  <Project Path="PetCare360.Domain/PetCare360.Domain.csproj" Id="3202c920-c79a-4eba-978f-5dda090dee3e" />
+  <Project Path="PetCare360.Infrastructure/PetCare360.Infrastructure.csproj" Id="aafa3098-7dfe-400a-bd1e-853fd5d21755" />
+  <Project Path="PetCare360.IntegrationTests/PetCare360.IntegrationTests.csproj" Id="3bc84955-0acb-4193-b321-89b33522a96c" />
+  <Project Path="PetCare360.UnitTests/PetCare360.UnitTests.csproj" Id="0bd9040f-8ca6-4677-ac08-c370591d2b97" />
+</Solution>
