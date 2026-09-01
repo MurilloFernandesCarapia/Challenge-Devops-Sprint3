@@ -1,0 +1,62 @@
+
+
+apiVersion: 2021-10-01
+location: __LOCATION__
+name: __ACI_NAME__
+type: Microsoft.ContainerInstance/containerGroups
+
+properties:
+  osType: Linux
+  restartPolicy: OnFailure
+
+  
+  imageRegistryCredentials:
+    - server: __ACR_LOGIN_SERVER__
+      username: __ACR_USERNAME__
+      password: __ACR_PASSWORD__
+
+  ipAddress:
+    type: Public
+    dnsNameLabel: __DNS_LABEL__
+    ports:
+      - protocol: TCP
+        port: 8080    # API / Swagger
+      - protocol: TCP
+        port: 1521    # Oracle 
+
+  containers:
+
+   
+    - name: petcare-oracle
+      properties:
+        image: __ACR_LOGIN_SERVER__/__IMAGE_ORACLE__
+        ports:
+          - port: 1521
+        resources:
+          requests:
+            cpu: 2
+            memoryInGB: 4
+        environmentVariables:
+          - name: ORACLE_PASSWORD
+            secureValue: __ORACLE_ADMIN_PASSWORD__
+          - name: APP_USER
+            value: APP_USER
+          - name: APP_USER_PASSWORD
+            secureValue: __APP_USER_PASSWORD__
+
+   
+    - name: petcare-api
+      properties:
+        image: __ACR_LOGIN_SERVER__/__IMAGE_API__
+        ports:
+          - port: 8080
+        resources:
+          requests:
+            cpu: 1
+            memoryInGB: 1.5
+        environmentVariables:
+          - name: ASPNETCORE_ENVIRONMENT
+            value: Production
+          
+          - name: ConnectionStrings__OracleConnection
+            secureValue: "User Id=APP_USER;Password=__APP_USER_PASSWORD__;Data Source=localhost:1521/XEPDB1;"
