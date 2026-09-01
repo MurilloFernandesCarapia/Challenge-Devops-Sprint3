@@ -5,6 +5,7 @@ using PetCare360.API.Middleware;
 using PetCare360.Infrastructure;
 using Serilog;
 using Serilog.Events;
+using PetCare360.Infrastructure.Data;
 
 
 Log.Logger = new LoggerConfiguration()
@@ -48,14 +49,16 @@ try
 
     var app = builder.Build();
 
-    if (app.Environment.IsDevelopment())
+    
+    await DatabaseInitializer.InicializarAsync(app.Services);
+
+    
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
     {
-        app.UseSwagger();
-        app.UseSwaggerUI(c =>
-        {
-            c.SwaggerEndpoint("/swagger/v1/swagger.json", "PetCare360 API v1");
-        });
-    }
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "PetCare360 API v1");
+        c.RoutePrefix = "swagger";
+    });
 
     
     app.UseMiddleware<CorrelationIdMiddleware>();
@@ -63,7 +66,10 @@ try
     //Registra uma linha de log por requisição HTTP, com rota, status e duração
     app.UseSerilogRequestLogging();
 
-    app.UseHttpsRedirection();
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseHttpsRedirection();
+    }
     app.UseAuthorization();
     app.MapControllers();
 
@@ -92,6 +98,8 @@ try
     {
         ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
     });
+
+    app.MapGet("/", () => Results.Redirect("/swagger"));
 
     app.Run();
 }

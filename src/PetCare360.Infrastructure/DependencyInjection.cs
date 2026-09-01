@@ -56,28 +56,42 @@ namespace PetCare360.Infrastructure
                     name: "migrations",
                     tags: new[] { "startup" });
 
+            
+            
             //5. OpenTelemetry - tracing e métricas
             var resourceBuilder = ResourceBuilder.CreateDefault()
                 .AddService(TelemetryConstants.ServiceName);
+
+            
+            var consoleExporterHabilitado = string.Equals(
+                configuration["OTEL_CONSOLE_EXPORTER"], "true", StringComparison.OrdinalIgnoreCase);
 
             services.AddOpenTelemetry()
                 .WithTracing(tracerProviderBuilder =>
                 {
                     tracerProviderBuilder
                         .SetResourceBuilder(resourceBuilder)
-                        .AddAspNetCoreInstrumentation() // Captura requisições HTTP de entrada
-                        .AddHttpClientInstrumentation() // Captura requisições HTTP de saída
-                        .AddSource(TelemetryConstants.ServiceName) // Assina os traces dos nossos services
-                        .AddConsoleExporter();
+                        .AddAspNetCoreInstrumentation() 
+                        .AddHttpClientInstrumentation() 
+                        .AddSource(TelemetryConstants.ServiceName); 
+
+                    if (consoleExporterHabilitado)
+                    {
+                        tracerProviderBuilder.AddConsoleExporter();
+                    }
                 })
                 .WithMetrics(meterProviderBuilder =>
                 {
                     meterProviderBuilder
                         .SetResourceBuilder(resourceBuilder)
-                        .AddAspNetCoreInstrumentation() // Tempo de resposta e taxa de erro por endpoint
+                        .AddAspNetCoreInstrumentation() 
                         .AddHttpClientInstrumentation()
-                        .AddMeter(TelemetryConstants.MeterName) // Nossos contadores customizados
-                        .AddConsoleExporter();
+                        .AddMeter(TelemetryConstants.MeterName); 
+
+                    if (consoleExporterHabilitado)
+                    {
+                        meterProviderBuilder.AddConsoleExporter();
+                    }
                 });
 
             return services;
